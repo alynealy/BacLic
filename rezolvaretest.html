@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <?php
+session_start();
+$servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    $dang="";
+
+$testid=(int)$_GET['idtest'];
+    if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+    if($_SESSION['elevid']==""){header("Location: index.html");die();}
+    if($_SESSION['testr']==""){
+    $sql="INSERT INTO inceptest (nrtest,elevid,timp) VALUES (".$testid.",".$_SESSION['elevid'].",NOW())";  $result = mysqli_query($conn, $sql);
+    $_SESSION['testr']= mysqli_insert_id($conn);}
+     if (isset($_POST['buton'])){
+     $sql="UPDATE inceptest INNER JOIN  (
+SELECT ROUND(SUM(CASE WHEN cerinte.raspc=rezolvare.raspuns THEN 1 END )*100/ COUNT(*), 2) AS rez FROM cerinte
+JOIN inceptest ON cerinte.nrtest=inceptest.nrtest
+LEFT JOIN rezolvare ON rezolvare.nrtest=inceptest.nrtest AND cerinte.id= rezolvare.nrex WHERE  inceptest.id =".$_SESSION['testr'].") AS b ON 1=1
+SET nota=b.rez,testfin=1,timpfin=NOW()
+WHERE inceptest.id=".$_SESSION['testr'];
+$result123 = mysqli_query($conn, $sql);
+$_SESSION['testr']="";
+header("Location: indexelevi.html");die();
+}
+  ?>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="shortcut icon" href="images/favicon.png" />
+</head>
+<body>
+<div class="container-scroller">
+  <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+      <ul class="navbar-nav mr-lg-2">
+        <li class="nav-item nav-profile dropdown">
+          <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+            <img src="images/useri.png" alt="profile"/>
+            <?php $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+                        $sql="SELECT CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS np FROM registrelevi WHERE id=".$_SESSION['elevid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+            echo '<span class="nav-user-status">'.$row['np'].'</span>';}}
+            ?>
+
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </nav>
+  <div class="container-fluid page-body-wrapper">
+    <div class="main-panel">
+      <div class="content-wrapper">
+        <div class="row">
+          <div class="col-md-6 grid-margin stretch-card center">
+            <div class="card">
+              <div class="card-body"> <p id="demo"></p>
+                <?php
+                 $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+     $timp="";
+    $sql = "SELECT  cerinte.* ,raspuns,TIMESTAMPDIFF(MINUTE, NOW(), inceptest.timp + interval timp.timp minute) as timp FROM cerinte LEFT JOIN rezolvare
+    ON rezolvare.nrex=cerinte.id AND rezolvare.nrtest=".$_SESSION['testr']."
+    LEFT JOIN test ON cerinte.nrtest=test.id
+ LEFT JOIN timp ON test.timp=timp.id
+ LEFT JOIN inceptest ON inceptest.nrtest=cerinte.nrtest
+WHERE TIMESTAMPDIFF(MINUTE, NOW(), inceptest.timp + INTERVAL timp.timp MINUTE) >0 AND cerinte.nrtest in (select nrtest from inceptest where id=".$_SESSION['testr'].")";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                $i=0;
+                while ($row = mysqli_fetch_assoc($result)) { $timp=$row['timp'];
+                $s[1]="";  $s[2]="";  $s[3]="";  $s[4]="";  $s[5]=""; $i=$i+1;
+                $s[$row['raspuns']]=" checked ";
+                echo '
+                <div class="form-group row">
+                  '.$i.'. '.$row["cerinta"].'
+                </div>
+                <div class="form-group row">
+                  <img src="'.$row["fiscer"].'" >
+                </div>
+                <div class="form-group ">
+
+                   <div class="col-sm-12">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="radio" class="form-check-input" name="grila'.$row['id'].'" onchange="rasp1(1,'.$row["id"].','.$_SESSION["elevid"].','.$testid.','.$_SESSION['testr'].')" id="g1" value="1" ' .$s[1].'>
+                      '.$row['ra'].'
+                      <i class="input-helper"></i>
+                    </label>
+                  </div>
+                </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g2" onchange="rasp1(2,'.$row["id"].','.$_SESSION["elevid"].','.$testid.','.$_SESSION['testr'].')" value="2" ' .$s[2].'>
+                        '.$row['rb'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g3" onchange="rasp1(3,'.$row["id"].','.$_SESSION["elevid"].','.$testid.','.$_SESSION['testr'].')" value="3" ' .$s[3].'>
+                        '.$row['rc'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g4" onchange="rasp1(4,'.$row["id"].','.$_SESSION["elevid"].','.$testid.','.$_SESSION['testr'].')" value="4" ' .$s[4].'>
+                        '.$row['rd'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g5" onchange="rasp1(5,'.$row["id"].','.$_SESSION["elevid"].','.$testid.','.$_SESSION['testr'].')" value="5"' .$s[5].'>
+                        '.$row['re'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                </div>';
+
+                }}
+                ?>
+                <form action="rezolvaretest.html" class="pt-3" method="post">
+                <div class="mt-3">
+                  <input  class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" name="buton" value="Finalizare">
+                </div></form>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="file-upload.js"></script>
+<script>
+function rasp1(v,c,e,t,w) {
+console.log(v+"-"+c+"-"+e+"-"+t);
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    //  document.getElementById("txtHint").innerHTML = this.responseText;
+    }
+  };
+  xmlhttp.open("GET", "primestedate.html?raspuns=" + v+"&idex="+c+"&idelev="+e+"&ses="+t+"&sesiune="+w, true);
+  xmlhttp.send();
+}
+</script>
+<script>
+  var countDownDate = new Date(); countDownDate.setMinutes(countDownDate.getMinutes() +<?php echo $timp; ?>)
+  var x = setInterval(function() {
+    var now = new Date().getTime();
+    var distance = countDownDate - now;
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    document.getElementById("demo").innerHTML = hours + "h "
+            + minutes + "m " + seconds + "s ";
+    if (distance < 0) {
+      clearInterval(x);
+      document.getElementById("demo").innerHTML = "A expirat timpul!";
+    }
+  }, 1000);
+</script>
+
+</body>
+</html>

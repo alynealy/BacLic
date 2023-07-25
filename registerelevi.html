@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<?php
+      include('gconfig.php');
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+session_start();
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+ $vaqr="";
+    if (isset($_POST['buton']))
+ {
+
+ if((addslashes($_POST['nume'])=="") or (addslashes($_POST['prenume'])=="") or (addslashes($_POST['email'])=="") or (addslashes($_POST['parola'])=="") or ($_POST['profil']=="")){
+    $vaqr="-1"; }
+    else {
+    $sql="INSERT INTO registrelevi (nume,prenume,email,parola,profil) VALUES ('".addslashes($_POST['nume'])."','".addslashes($_POST['prenume'])."','".addslashes($_POST['email'])."','".addslashes($_POST['parola'])."',".$_POST['profil'].")";
+     if(!mysqli_query($conn, $sql)){
+ $vaqr= mysqli_errno($conn);
+}
+else {
+$_SESSION['elevid']= mysqli_insert_id($conn);
+$_SESSION['profil']=$row['profil'];
+$_SESSION['testr']="";
+header("Location: indexelevi.html");
+die();
+}
+}
+}
+    ?>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="shortcut icon" href="images/favicon.png" />
+</head>
+
+<body>
+
+  <div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+      <div class="content-wrapper d-flex align-items-center auth px-0">
+        <div class="row w-100 mx-0">
+          <div class="col-lg-4 mx-auto">
+            <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+              <?php
+              if($vaqr=="1062"){
+             echo' <div class="alert alert-danger">
+                <strong>Eroare!</strong> Exista deja un cont cu adresa aceasta.
+              </div>';}
+            if($vaqr=="-1"){
+            echo' <div class="alert alert-danger">
+            <strong>Eroare!</strong> Va rugam sa completati toate campurile.
+          </div>';}
+              ?>
+              <h4>Creeaza cont:</h4>
+              <form action="registerelevi.html" class="pt-3" method="post">
+                <div class="form-group">
+                  <input type="email" class="form-control form-control-lg" id="email" placeholder="Email" name="email">
+                </div>
+                <div class="form-group">
+                  <input type="password" class="form-control form-control-lg" id="parola" placeholder="Parola" name="parola">
+                </div>
+                <div class="form-group">
+                  <input type="text" class="form-control form-control-lg" id="nume" placeholder="Nume" name="nume">
+                </div>
+                <div class="form-group">
+                  <input type="text" class="form-control form-control-lg" id="prenume" placeholder="Prenume" name="prenume">
+                </div>
+
+                <div class="form-group">
+                  <select class="form-control form-control-lg" id="profil" name="profil">
+                    <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT id,profil FROM profilee";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+
+echo "<option value=".$row['id'].">" .$row['profil']."</option>";
+
+                    }}
+                    ?>
+
+                  </select>
+                </div>
+		
+	 <div class="mt-3">
+                  <input  class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" name="buton" value="Inregistrare">
+                </div>
+                <div class="text-center mt-4 font-weight-light">
+                 Ai deja cont? <a href="index.html" class="text-primary">Login</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+
+</html>

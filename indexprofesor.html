@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <script src="canvasjs.min.js"></script>
+</head>
+<?php
+session_start();
+ $vaqr="";
+
+ if($_SESSION['profid']==""){header("Location: loginprofesor.html");die();}
+if (isset($_POST['buton'])){ header("Location: adaugaretest.html");
+die();} 
+?>
+<body>
+<div class="container-scroller">
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav mr-lg-2">
+                <li class="nav-item nav-profile dropdown">
+                    <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+                        <img src="images/useri.png" alt="profile"/>
+                       <?php $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+                        $sql="SELECT CONCAT(registrprof.nume,' ',registrprof.prenume) AS np FROM registrprof WHERE id=".$_SESSION['profid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo '<span class="nav-user-status">'.$row['np'].'</span>';}}
+?>
+
+                    </a>
+                </li>
+		 <li class="nav-item nav-user-status dropdown">
+                  <p class="mb-0"><a href="logout.html">Delogare</a></p>
+          </li>
+
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <form action="indexprofesor.html" class="pt-3" method="post">
+                                <div class="mt-3">
+                                    <input  class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" name="buton" value="Adauga un test nou">
+                                </div></form>
+                                <div class="table-responsive">
+                                    <table class="table" id="tabel1">
+                                        <thead>
+                                        <tr>
+                                            <th>Materie</th>
+                                            <th>Profil</th>
+                                            <th>Test</th>
+                                            <th>Timp</th>
+                                        </tr>
+                                        </thead>
+                                        <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT test.id, materii.materir,materideprof.profil, timp.timp FROM test
+LEFT JOIN materii
+ON test.materie=materii.id
+LEFT JOIN materideprof
+ON test.profil=materideprof.id
+LEFT JOIN timp
+ON test.timp=timp.id
+JOIN registrprof
+ON test.profesor =registrprof.id
+WHERE test.profesor=". $_SESSION['profid'];
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+                                        while ($row = mysqli_fetch_assoc($result)) {
+                                        echo" <thead>
+                                    <tr>
+                                        <td>".$row['materir']."</td>
+                                        <td>".$row['profil']."</td>
+                                        <td>".$row['id']."</td>
+                                        <td>".$row['timp']."</td>
+                                    </tr>
+                                    </thead>"; }
+                                        }
+                                        echo'</table>';
+                                    ?>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="chartContainer2" style="height: 370px; width: 100%;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="chartContainer3" style="height: 370px; width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            title:{
+                text: "Numarul de teste rezolvate in ultimele 10 zile"
+            },
+            axisY: {
+                title: "Teste rezolvate ",
+                valueFormatString: "",
+                suffix: "",
+                stripLines: [{
+                    value: 500000,
+                    label: "Average"
+                }]
+            },
+            data: [{
+                yValueFormatString: "",
+                xValueFormatString: "YYYY-MM-DD",
+                type: "line",
+                dataPoints: [
+                    <?php
+        $servername = "localhost";
+        $username = "alina";
+        $password = "alyne2006";
+        $dbname = "site";
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+        if (!$conn) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        $sql = "SELECT COUNT(*) AS total,DATE(datazi) AS zi FROM test WHERE profesor=".$_SESSION['profid']." GROUP BY DATE(datazi) ORDER BY DATE(datazi) LIMIT 10";
+        $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) > 0) { $l=0;
+            while ($row = mysqli_fetch_assoc($result)) {$l=$l+1;
+
+                echo'   { x:'.$l.', y: '.$row['total'].', label: "'.$row['zi'].'"},';
+            }}
+
+            ?>
+    ]
+    }],
+
+    });
+        chart.render();
+        var chart2 = new CanvasJS.Chart("chartContainer2", {
+
+            title:{
+                text: "Rezultate teste "
+            },
+            legend: {
+                maxWidth: 350,
+                itemWidth: 120
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{indexLabel}",
+                dataPoints: [
+                    <?php
+        $servername = "localhost";
+        $username = "alina";
+        $password = "alyne2006";
+        $dbname = "site";
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+        if (!$conn) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        $sql = "SELECT COUNT(*) AS nr,ROUND(nota/10,0) AS noti FROM inceptest LEFT JOIN test ON test.id=inceptest.nrtest WHERE profesor=".$_SESSION['profid']." AND nota IS NOT NULL GROUP BY ROUND(nota/10,0)";
+        $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo'   { y : '.$row['nr'].' , indexLabel: "'.$row['noti'].'"},';
+            }}
+            ?>
+    ]
+    }],
+
+    });
+        chart2.render();
+
+        var chart3 = new CanvasJS.Chart("chartContainer3", {
+
+            title:{
+                text: "Rezultate teste - toti profesori"
+            },
+            legend: {
+                maxWidth: 350,
+                itemWidth: 120
+            },
+            data: [{
+                type: "pie",
+                showInLegend: true,
+                legendText: "{indexLabel}",
+                dataPoints: [
+                    <?php
+        $servername = "localhost";
+        $username = "alina";
+        $password = "alyne2006";
+        $dbname = "site";
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+        if (!$conn) {
+            die("Connection failed: " . mysqli_connect_error());
+        }
+        $sql = "SELECT COUNT(*) AS nr,ROUND(nota/10,0) AS noti FROM inceptest  WHERE nota IS NOT NULL GROUP BY ROUND(nota/10,0)";
+        $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo'   { y : '.$row['nr'].' , indexLabel: "'.$row['noti'].'"},';
+            }}
+            ?>
+    ]
+    }],
+
+    });
+        chart3.render();
+
+    }
+</script>
+</body>
+
+</html>

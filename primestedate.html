@@ -1,0 +1,41 @@
+<?php
+session_start();
+    $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    $dang="";
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $rasp=(int)$_GET['raspuns'];
+    $idexe=(int)$_GET['idex'];
+      $idelv=(int)$_GET['idelev'];
+    $idtest=(int)$_GET['ses'];
+    $idsesi=(int)$_GET['sesiune'];
+    $sql1="SELECT COUNT(*) as timptest FROM inceptest JOIN test ON test.id=inceptest.nrtest JOIN timp ON timp.id=test.timp
+WHERE  NOW()-inceptest.timp<=timp.timp*60
+AND inceptest.id=".$idsesi;
+    $result = mysqli_query($conn, $sql1);
+    if (mysqli_num_rows($result) > 0) {
+while ($row = mysqli_fetch_assoc($result)) {
+if($row['timptest']==0) {$sql="UPDATE inceptest
+INNER JOIN  (
+SELECT ROUND(SUM(CASE WHEN cerinte.raspc=rezolvare.raspuns THEN 1 END )*100/ COUNT(*), 2) AS rez FROM cerinte
+JOIN inceptest ON cerinte.nrtest=inceptest.nrtest
+LEFT JOIN rezolvare ON rezolvare.nrtest=inceptest.nrtest AND cerinte.id= rezolvare.nrex WHERE  inceptest.id =".$idsesi.") AS b ON 1=1
+SET nota=b.rez,testfin=1,timpfin=NOW()
+WHERE inceptest.id=".$idsesi;
+$result = mysqli_query($conn, $sql);
+$_SESSION['testr']="";
+}
+else { $sql2 = "INSERT INTO rezolvare(raspuns,nrex,elev,nrtest) VALUES(".$rasp.",".$idexe.",".$idelv.",".$idtest.") ON DUPLICATE KEY UPDATE raspuns=".$rasp;
+
+$result = mysqli_query($conn, $sql2);}
+}
+}
+
+
+
+?>

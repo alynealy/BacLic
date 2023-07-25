@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <?php
+session_start();
+$servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    $dang="";
+$testid=""; $testid=(int)$_POST['test'];
+    if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+    error_reporting(0);
+    if($_SESSION['profid']==""){header("Location: loginprofesor.html");}
+     if (isset($_POST['buton'])){
+   if(isset($_POST['sel1'])){ if($_POST['sel1']=="") {$dang="s1"; echo $dang;}}
+   else { $dang="s9";echo $dang;}
+     if(isset($_POST['sel2'])){if($_POST['sel2']=="") {$dang="s2";echo $dang; }}
+     else { $dang="s7";echo $dang;}
+    if(($_POST['cerinta']=="") and ($_FILES["img"]["name"]=="")) {echo "q"; $dang="s3";echo $dang;}
+    if(($_POST['rezolvare']=="") and ($_FILES["imgag"]["name"]=="")) { echo "d"; $dang="s4";echo $dang;}
+    if(($_POST['r1']=="") or ($_POST['r2']=="") or($_POST['r3']=="") or ($_POST['r4']=="") or ($_POST['r5']=="")){ $dang="s5";echo $dang;}
+ if(isset($_POST['grila'])){ if($_POST['grila']=="") {$dang="s6"; echo $dang;}}
+ else { $dang="s8";echo $dang;}
+$target_dir = "poze/";
+$target_file = $target_dir . $_SESSION['profid']."_c_".time()."_".basename($_FILES["img"]["name"]);
+$nume1=$target_file;
+$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+if($imageFileType != ""){
+if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {$dang="s10";echo $dang.$imageFileType;}
+else {if (move_uploaded_file($_FILES["img"]["tmp_name"], $target_file)) {}
+      else {$dang="s11";echo $dang;}}}
+else{$nume1="";}
+$target_file = $target_dir . $_SESSION['profid']."_r_".time()."_".basename($_FILES["imgag"]["name"]);
+$nume2=$target_file;
+$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+if($imageFileType != ""){
+if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"&& $imageFileType != "gif" ) {$dang="s12";echo $dang.$imageFileType;}
+else {if (move_uploaded_file($_FILES["imgag"]["tmp_name"], $target_file)) {}
+      else {$dang="s13";echo $dang;}}}
+else{$nume2="";}
+      if($dang==""){
+        $testid=(int)$_POST['test'];
+        if($testid==""){
+         $sql="INSERT INTO test (profesor,materie,profil,timp,datazi) VALUES (".$_SESSION['profid'].",".$_SESSION['materie'].",".$_POST['sel1'].",".$_POST['sel2'].",now())";
+         if(!mysqli_query($conn, $sql)){ $vaqr= mysqli_errno($conn);}
+         $testid=mysqli_insert_id($conn);
+         }
+$sql="INSERT INTO cerinte (nrtest,cerinta,fiscer,ra,rb,rc,rd,re,raspc,rezolvare,fisrez) VALUES (".$testid.",'".addslashes($_POST['cerinta'])."','".$nume1."','".addslashes($_POST['r1'])."','".addslashes($_POST['r2'])."','".addslashes($_POST['r3'])."','".addslashes($_POST['r4'])."','".addslashes($_POST['r5'])."',".$_POST['grila'].",'".addslashes($_POST['rezolvare'])."','".$nume2."')";
+if(!mysqli_query($conn, $sql)){ $vaqr= mysqli_errno($conn);}
+    }}
+  ?>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="shortcut icon" href="images/favicon.png" />
+</head>
+<body>
+<div class="container-scroller">
+  <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+      <ul class="navbar-nav mr-lg-2">
+        <li class="nav-item nav-profile dropdown">
+          <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+            <img src="images/useri.png" alt="profile"/>
+            <?php $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+                        $sql="SELECT CONCAT(registrprof.nume,' ',registrprof.prenume) AS np FROM registrprof WHERE id=".$_SESSION['profid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+            echo '<span class="nav-user-status">'.$row['np'].'</span>';}}
+            ?>
+
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container-fluid page-body-wrapper">
+    <div class="main-panel">
+      <div class="content-wrapper">
+        <div class="row">
+          <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">  <form class="forms-sample" method="post" enctype="multipart/form-data">
+                <h4 class="card-title">Test</h4>
+                <?php echo $dang;?>
+                <div class="col-md-9">
+                  <div class="form-group row">
+                    <input type="hidden" id="test" name="test" value="<?php echo $testid;?>">
+                    <div class="col-sm-7">
+                      <select class="form-control  form-control-sm select-mov" id=""sel1" name="sel1">
+
+                      <?php
+                    if(isset($_POST['sel1'])){
+                      if($_POST['sel1']!="") {
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+                      $sql="SELECT * FROM materideprof WHERE 1=2 AND id=".$_POST['sel1'];
+                       $result = mysqli_query($conn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                      while ($row = mysqli_fetch_assoc($result)) {
+                        echo' <option value="'.$_POST['sel1'].'" selected hidden>'.$row['profil'].'</option>';
+                      }    }}
+                      else{echo'      <option value="" selected disabled hidden>Profilul</option>';} }
+
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT materideprof.id, materideprof.profil
+FROM materideprof
+LEFT JOIN materii
+ON materii.materir=materideprof.materie
+LEFT JOIN profilee
+ON profilee.id=materideprof.id
+WHERE materii.id=".$_SESSION['materie'];
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                      while ($row = mysqli_fetch_assoc($result)) {
+                      echo "<option value=".$row['id'].">" .$row['profil']."</option>";
+                      }}
+                      ?>
+                      </select>
+                    </div>
+                    <div class="col-sm-1">
+                    </div>
+                    <div class="col-sm-4">
+                      <select class=" form-control  form-control-sm select-mov" id="sel2" name="sel2">
+
+                        <?php
+                          if(isset($_POST['sel2'])){
+                      if($_POST['sel2']!="") {
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+                      $sql="SELECT * FROM timp WHERE 1=2 AND id=".$_POST['sel2'];
+                       $result = mysqli_query($conn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo' <option value="'.$_POST['sel2'].'" selected hidden>'.$row['timp'].'</option>';
+                        }    }}
+                        else{echo'      <option value="" selected disabled hidden>Profilul</option>';} }
+
+                        $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT id,timp FROM timp";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<option value=".$row['id'].">" .$row['timp']."</option>";
+                        }}
+                        ?>
+
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <p class="card-description">
+                  Cerinta
+                </p>
+
+                <div class="form-group row">
+                  <label for="cerinta" class="col-sm-1 col-form-label"> </label>
+                  <div class="col-sm-9">
+
+                    <textarea id="cerinta" class="form-control" name="cerinta" rows="5" cols="50"></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                </div>
+                <div class="form-group row">
+                  <label for="uplo" class="col-sm-1 col-form-label"></label>
+                  <input type="file" name="img" class="file-upload-default">
+                  <div class="input-group col-sm-9">
+                    <input type="text" class="form-control file-upload-info" disabled="" placeholder="Upload Image">
+                    <span class="input-group-append">
+                          <button class="file-upload-browse btn btn-primary btn-rounded" type="button">Upload</button>
+                        </span>
+                  </div>
+                </div>
+                <hr>
+                <p class="card-description">
+                  Raspunsuri
+                </p>
+                <div class="form-group2 row">
+                  <label for="r1" class="col-sm-1 col-form-label"> 1</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="r1" name="r1"placeholder="Raspunsul 1">
+                  </div>
+                </div>
+                <div class="form-group2 row">
+                  <label for="r2" class="col-sm-1 col-form-label"> 2</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="r2" name="r2" placeholder="Raspunsul 2">
+                  </div>
+                </div>
+                <div class=" form-group2 row">
+                  <label for="r3" class="col-sm-1 col-form-label"> 3</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="r3" name="r3"placeholder="Raspunsul 3">
+                  </div>
+                </div>
+                <div class="form-group2 row">
+                  <label for="r4" class="col-sm-1 col-form-label"> 4</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="r4" name="r4" placeholder="Raspunsul 4">
+                  </div>
+                </div>
+                <div class="form-group2 row">
+                  <label for="r5" class="col-sm-1 col-form-label"> 5</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="r5" name="r5" placeholder="Raspunsul 5">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="g1" class="col-sm-3 col-form-label card-description"> Raspuns Corect</label>
+                  <div class="col-sm-1">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila" id="g1" value="1" >
+                        1
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-1">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila" id="g2" value="2" >
+                        2
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-1">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila" id="g3" value="3" >
+                        3
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-1">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila" id="g4" value="4" >
+                        4
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-1">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila" id="g5" value="5">
+                        5
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <p class="card-description">
+                  Rezolvare
+                </p>
+                <div class="form-group row">
+                  <label for="rezolvare" class="col-sm-1 col-form-label"> </label>
+                  <div class="col-sm-9">
+
+                    <textarea id="rezolvare" class="form-control" name="rezolvare" rows="5" cols="50"></textarea>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="imgag" class="col-sm-1 col-form-label"></label>
+                  <input type="file" name="imgag" id="imgag" class="file-upload-default">
+                  <div class="input-group col-sm-9">
+                    <input type="text" class="form-control file-upload-info" disabled="" placeholder="Upload Image">
+                    <span class="input-group-append">
+                          <button class="file-upload-browse btn btn-primary btn-rounded" type="button">Upload</button>
+                        </span>
+                  </div>
+                </div><hr>
+                <div class="form-group row">
+                  <label for="buton" class="col-sm-5 "></label>
+                  <div class="col-sm-1">
+                    <input  class=" btn btn-primary  btn-rounded" type="submit" name="buton" id="buton" value="Adauga">
+                  </div></div>
+              </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Vizualizare test</h4>
+                <?php
+                 $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT *  FROM cerinte WHERE nrtest=".$testid;
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                $i=0;
+                while ($row = mysqli_fetch_assoc($result)) {
+                $s[1]="";  $s[2]="";  $s[3]="";  $s[4]="";  $s[5]=""; $i=$i+1;
+                $s[$row['raspc']]="checked";
+                echo '
+                <div class="form-group row">
+                  '.$i.'. '.$row["cerinta"].'
+                </div>
+                <div class="form-group row">
+                  <img src="'.$row["fiscer"].'" >
+                </div>
+                <div class="form-group ">
+
+                   <div class="col-sm-12">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g1" onclick="return false;" value="1" '.$s[1].' >
+                      '.$row['ra'].'
+                      <i class="input-helper"></i>
+                    </label>
+                  </div>
+                </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g2"  onclick="return false;" value="2"  '.$s[2].'>
+                        '.$row['rb'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g3" onclick="return false;" value="3"  '.$s[3].'>
+                        '.$row['rc'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g4" value="4"  onclick="return false;"  '.$s[4].'>
+                        '.$row['rd'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                  <div class="col-sm-12">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="grila'.$row['id'].'" id="g5"  onclick="return false;"  value="5" '.$s[5].'>
+                        '.$row['re'].'
+                        <i class="input-helper"></i></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  '.$row["rezolvare"].'
+                </div>
+                <div class="form-group row">
+                  <img src="'.$row["fisrez"].'" >
+                </div>';
+                }}
+                ?>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="file-upload.js"></script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<style type="text/css">
+.chat-wrapper {
+
+    background: #6a008a;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 2px 2px 2px 0px #00000017;
+	
+}
+#message-box {
+    width: 99%;
+    display: inline-block;
+    height: 500px;
+    background: #fff;
+    box-shadow: inset 0px 0px 2px #00000017;
+    overflow: auto;
+    padding: 10px;
+}
+.user-panel{
+    margin-top: 10px;
+}
+input[type=text]{
+    border: none;
+    padding: 5px 5px;
+	    margin: 1px;
+    box-shadow: 2px 2px 2px #0000001c;
+}
+input[type=text]#name{
+    width:20%;
+}
+input[type=text]#message{
+    width:60%;
+}
+button#send-message {
+    border: none;
+    padding: 5px 15px;
+    background: #ffb3ff;
+    box-shadow: 2px 2px 2px #0000001c;
+}
+</style>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <script src="canvasjs.min.js"></script>
+</head>
+<html lang="en">
+<body>
+ <div class="container-scroller">
+	   <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+        <ul class="navbar-nav mr-lg-2">
+          <li class="nav-item nav-profile dropdown">
+		   <i class="mdi mdi-new-box"></i>  <p class="mb-0"> <a href="https://alinaelena.fun/site/indexelevi.html">Acasa</a></p>
+            <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+              <img src="images/useri.png" alt="profile"/>
+              <?php session_start();
+              if($_SESSION['elevid']==""){header("Location: index.html");die();}
+              $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        // Check connection
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+
+                        $sql="SELECT CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS np FROM registrelevi WHERE id=".$_SESSION['elevid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+              echo '<span class="nav-user-status">'.$row['np'].'</span>';}}
+              ?>
+            </a>
+          </li>
+          <li class="nav-item nav-user-status dropdown">
+                  <p class="mb-0"><a href="logout.html">Delogare</a></p>
+          </li>
+
+        </ul>
+
+      </div>
+    </nav>
+
+    <div class="container-fluid page-body-wrapper">
+      <div class="main-panel">        
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-md-9 stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h1 style="color:#6a008a;" class="card-title">Trivia</h1>
+		 <div class="chat-wrapper">
+<div id="message-box"></div>
+<div class="user-panel">
+<?php
+  $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        // Check connection
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+
+                        $sql="SELECT nume,prenume FROM registrelevi WHERE id=".$_SESSION['elevid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+              echo' <input type="hidden" name="name" id="name" value="'.$row['prenume'].'_'.$_SESSION['elevid'].'" readonly />';}}
+              ?>
+<input type="text" name="message" id="message" placeholder="Scrie un mesaj.." maxlength="100" />
+<button id="send-message">Send</button>
+</div>
+</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3  stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h1 style="color:#6a008a;" class="card-title">Clasament</h1>
+		   <div class="table-responsive" id="table-responsive">
+                          <table class="table" id="tabel">
+                            <thead>
+                            <tr>
+                              <th>Loc</th>
+                              <th>Nume</th>
+                              <th>Punctaj</th>
+                            </tr>
+			    </thead><tbody>
+                            <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "(SELECT (SELECT COUNT(*)+1 AS loc FROM clasament WHERE punctaj>(SELECT punctaj FROM clasament WHERE numeut=".$_SESSION['elevid']."))AS loc,numeut,CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS nume, punctaj  FROM clasament
+LEFT JOIN registrelevi
+ON clasament.numeut=registrelevi.id
+WHERE numeut=". $_SESSION['elevid']." )
+UNION ALL
+SELECT * FROM (SELECT COUNT(*) OVER (ORDER BY punctaj  ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS loc,numeut, CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS nume,punctaj FROM clasament
+LEFT JOIN registrelevi
+ON clasament.numeut=registrelevi.id
+ORDER BY punctaj DESC)b";
+
+    $result = mysqli_query($conn, $sql);
+ 
+    if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+			     if($row['numeut']==$_SESSION['elevid']){
+ 			echo" <thead>
+                          <tr>
+                            <td style='font-weight: bold'>".$row['loc']."</td>
+                            <td style='font-weight: bold'>".$row['nume']."</td>
+                            <td style='font-weight: bold'>".$row['punctaj']."</td>
+                          </tr>
+                          </thead>";
+}
+                           else{
+                            echo" <thead>
+                          <tr>
+                            <td>".$row['loc']."</td>
+                            <td>".$row['nume']."</td>
+                            <td>".$row['punctaj']."</td>
+                          </tr>
+                          </thead>";
+			  }
+                            }}
+                            ?>
+
+                            </tbody>
+                          </table>
+                        </div>
+                </div>
+              </div>
+            </div>
+           
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="reconecting-websocket.js"></script>
+<script type="text/javascript">
+var auto_refresh = setInterval(
+function ()
+{
+	console.log('aaa');
+$('#table-responsive').load('scor.html').fadeIn("slow");
+}, 1000); // refresh every 10000 milliseconds
+</script>
+<script language="javascript" type="text/javascript">
+        //create a new WebSocket object.
+        var msgBox = $('#message-box');
+        var wsUri = "wss://chat.alinaelena.fun:9000/chat/server.php";
+//      websocket = new WebSocket(wsUri);
+ websocket =    new ReconnectingWebSocket(wsUri);
+        websocket.onopen = function(ev) { // connection is open
+//              msgBox.append('<div class="system_msg" style="color:#bbbbbb">Welcome to my "Demo WebSocket Chat box"!</div>'); //notify user
+        }
+        // Message received from server
+        websocket.onmessage = function(ev) {
+                var response            = JSON.parse(ev.data); //PHP sends Json data
+
+                var res_type            = response.type; //message type
+                var user_message        = response.message; //message text
+                var user_name           = response.name; //user name
+                var user_color          = response.color; //color
+		
+
+                switch(res_type){
+                        case 'usermsg':
+                                msgBox.append('<div><span class="user_name" style="color:' + user_color + '">' + user_name + '</span> : <span class="user_message">' + user_message + '</span></div>');
+                                break;
+                        case 'system':
+                                msgBox.append('<div style="color:#bbbbbb">' + user_message + '</div>');
+                                break;
+                }
+                msgBox[0].scrollTop = msgBox[0].scrollHeight; //scroll message
+
+        };
+
+        websocket.onerror       = function(ev){ msgBox.append('<div class="system_error">Error Occurred - ' + ev.data + '</div>'); };
+        websocket.onclose       = function(ev){
+        //      msgBox.append('<div class="system_msg">Connection Closed</div>');  var wsUri = "wss://chat.alinaelena.fun:9000/chat/server.php";
+        console.log(wsUri);
+//        websocket = new WebSocket(wsUri);
+ };
+
+        //Message send button
+        $('#send-message').click(function(){
+                send_message();
+        });
+
+        //User hits enter key
+        $( "#message" ).on( "keydown", function( event ) {
+          if(event.which==13){
+                  send_message();
+          }
+        });
+
+        //Send message
+        function send_message(){
+                var message_input = $('#message'); //user message text
+                var name_input = $('#name'); //user name
+	
+               
+                if(message_input.val() == ""){ //emtpy message?
+	       //   alert("Va rugam scrieti un mesaj ");
+                        return;
+                }
+
+                //prepare json data
+                var msg = {
+                        message: message_input.val(),
+                        name: name_input.val(),
+                        color : '<?php echo $colors[$color_pick]; ?>',
+			id :  '<?php echo $_SESSION['elevid']; ?>'
+                };
+                //convert and send data to server
+                websocket.send(JSON.stringify(msg));
+                message_input.val(''); //reset message input
+        }
+</script>
+</body>
+</html>
+

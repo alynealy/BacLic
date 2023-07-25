@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="shortcut icon" href="images/favicon.png" />
+  <script src="canvasjs.min.js"></script>
+</head>
+<body>
+  <div class="container-scroller">
+  <div class="container-scroller">
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+        <ul class="navbar-nav mr-lg-2">
+	  <li class="nav-item nav-profile dropdown">
+		<i class="mdi mdi-new-box"></i>  <p class="mb-0"> <a href="chat.html">Trivia</a></p></li>
+         <li class="nav-item nav-profile dropdown">
+            <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+              <img src="images/useri.png" alt="profile"/>
+              <?php
+					  session_start();
+              if($_SESSION['elevid']==""){header("Location: index.html");die();}
+
+              $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        // Check connection
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+
+                        $sql="SELECT CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS np FROM registrelevi WHERE id=".$_SESSION['elevid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+              echo '<span class="nav-use-status">'.$row['np'].'</span>';}}
+              ?>
+            </a>
+          </li>
+	  <li class="nav-item nav-user-status dropdown">
+		  <p class="mb-0"><a href="logout.html">Delogare</a></p>
+          </li>
+	  
+        </ul>
+
+      </div>
+    </nav>
+    <div class="container-fluid page-body-wrapper">
+      <div class="theme-setting-wrapper">
+        <div id="settings-trigger"><i class="typcn typcn-cog-outline"></i></div>
+        <div id="theme-settings" class="settings-panel">
+          <div class="sidebar-bg-options selected" id="sidebar-light-theme"><div class="img-ss rounded-circle bg-light border mr-3"></div>Light</div>
+          <div class="sidebar-bg-options" id="sidebar-dark-theme"><div class="img-ss rounded-circle bg-dark border mr-3"></div>Dark</div>
+          <div class="color-tiles mx-0 px-4">
+          </div>
+        </div>
+      </div>
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-xl-12 grid-margin stretch-card flex-column">
+              <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                  <div class="card">
+                     <div class="form-group row"><div class="col-sm-7">
+                 <?php       $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+
+
+                       if(isset($_POST['buton'])){
+                       if(isset($_SESSION['testr'])){
+                       $sql="UPDATE inceptest
+INNER JOIN  (
+SELECT ROUND(SUM(CASE WHEN cerinte.raspc=rezolvare.raspuns THEN 1 END )*100/ COUNT(*), 2) AS rez FROM cerinte
+JOIN inceptest ON cerinte.nrtest=inceptest.nrtest
+LEFT JOIN rezolvare ON rezolvare.nrtest=inceptest.nrtest AND cerinte.id= rezolvare.nrex WHERE  inceptest.id =".(int)$_SESSION['testr'].") AS b ON 1=1
+SET nota=b.rez,testfin=1,timpfin=NOW()
+WHERE inceptest.id=". $_SESSION['testr'];    $result = mysqli_query($conn, $sql);
+                       $_SESSION['testr']="";}}
+
+                      if($_SESSION['testr']!=""){
+                      echo '<h1 class="display-5"><b> Aveti deja un test in desfasurare:</b></h1>';
+
+
+
+                  ?>
+
+                    </div>
+                      <div class="col-sm-4">
+
+                      </div></div>
+                    <div class="table-responsive">
+                      <table class="table" id="tabel1">
+                        <thead>
+                        <tr>
+                          <th>Materie</th>
+                          <th>Nume profesor</th>
+                          <th>Test</th>
+                          <th>Timp</th>
+                        </tr>
+                        </thead>
+                        <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT test.id, CONCAT(registrprof.nume,' ',registrprof.prenume) AS np, materii.materir,profilee.profil, timp.timp FROM test
+LEFT JOIN registrprof
+ON test.profesor=registrprof.id
+LEFT JOIN materii
+ON test.materie=materii.id
+LEFT JOIN profilee
+ON test.profil=profilee.id
+LEFT JOIN timp
+ON test.timp=timp.id
+JOIN inceptest
+ON test.id=inceptest.nrtest
+WHERE inceptest.id=". (int)$_SESSION['testr'];
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo" <thead>
+                      <tr>
+                        <td>".$row['materir']."</td>
+                        <td>".$row['np']."</td>
+                        <td>".$row['id']."</td>
+                        <td>".$row['timp']."</td>
+                        <td><a href='rezolvaretest.html?idtest=".$row['id']."'>Continua test</a></td>
+                      </tr>
+                      </thead>"; }
+                        }
+                      echo'</table>';
+                        echo '<br><br>
+                      <p>Doriti sa incepeti un test nou?
+                        <form action="indexelevi.html" method="post">
+                      <input  class="btn  btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" name="buton" value="Da">
+                    </form> ';
+
+
+                      }
+                      else {?>
+                      <select class="form-control  form-control-sm select-mov" id="materir" name="materir" onchange="myFunction(this.value,'')">
+                        <option value="" selected disabled hidden>Materie</option>
+                        <?php
+
+
+
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT id,materir FROM materii";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<option value=".$row['materir'].">" .$row['materir']."</option>";
+                        }}?>
+                      </select>
+                    </div>
+                      <div class="col-sm-4">
+                      <select class="form-control  form-control-sm select-mov" id="timp" name="timp" onchange="myFunction('',this.value)">
+                        <option value="" selected disabled hidden>Timp de rezolvare</option>
+                        <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT id,timp FROM timp";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<option value=".$row['timp'].">" .$row['timp']."</option>";
+                        }}
+                        ?>
+                      </select>
+                    </div></div>
+                    <div class="table-responsive">
+                      <table class="table" id="tabel">
+                        <thead>
+                        <tr>
+                          <th>Materie</th>
+                          <th>Nume profesor</th>
+                          <th>Test</th>
+                          <th>Timp</th>
+                        </tr>
+                        </thead>
+                        <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT test.id, CONCAT(registrprof.nume,' ',registrprof.prenume) as np, materii.materir,profilee.profil, timp.timp FROM test
+LEFT JOIN registrprof
+ON test.profesor=registrprof.id
+LEFT JOIN materii
+ON test.materie=materii.id
+LEFT JOIN profilee
+ON test.profil=profilee.id
+LEFT JOIN timp
+ON test.timp=timp.id WHERE test.profil=". $_SESSION['profil'];
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                       echo" <thead>
+                        <tr>
+                          <td>".$row['materir']."</td>
+                          <td>".$row['np']."</td>
+                          <td>".$row['id']."</td>
+                          <td>".$row['timp']."</td>
+                          <td><a href='rezolvaretest.html?idtest=".$row['id']."'>Incepe test</a></td>
+                        </tr>
+                        </thead>";
+}
+                        }}
+                        ?>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div></div>
+                <div class="col-md-6 grid-margin stretch-card">
+                  <div class="card">
+                    <div class="card-body d-flex flex-column ">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="table-responsive">
+                          <table class="table" id="tabel">
+                            <thead>
+                            <tr>
+                              <th>Materie</th>
+                              <th>Nume profesor</th>
+                              <th>Test</th>
+                              <th>Nota</th>
+                            </tr>
+                            </thead>
+                            <?php
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "SELECT test.id, CONCAT(registrprof.nume,' ',registrprof.prenume) AS np ,inceptest.nota AS nota, materii.materir,profilee.profil FROM test
+LEFT JOIN registrprof
+ON test.profesor=registrprof.id
+LEFT JOIN materii
+ON test.materie=materii.id
+LEFT JOIN profilee
+ON test.profil=profilee.id
+LEFT JOIN inceptest
+ON inceptest.nrtest=test.id
+WHERE inceptest.testfin=1
+AND inceptest.elevid=".$_SESSION['elevid']." ORDER BY inceptest.timpfin ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                            echo" <thead>
+                          <tr>
+                            <td>".$row['materir']."</td>
+                            <td>".$row['np']."</td>
+                            <td>".$row['id']."</td>
+                            <td>".$row['nota']."</td>
+                            <td><a href='vizualizaretest.html?idtest=".$row['id']."'>Vizualizare test</a></td>
+                          </tr>
+                          </thead>";
+
+                            }}
+                            ?>
+
+                            </tbody>
+                          </table>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+		</div>
+		</div>
+
+              <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                  <div class="card">
+                   <!-- <div class="dim">
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+		      </div>--!>
+                    <div class="card-body d-flex flex-column justify-content-between" >
+		   <!-- <div class="d-flex justify-content-between align-items-center mb-2">--!>
+                        <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+
+		<!--	</div>--!>
+			<!--<canvas id="sales-chart-b" class="mt-auto" height="38"></canvas>--!>
+                    </div>
+
+                    </div>
+                </div>
+              <div class="col-md-6 grid-margin stretch-card">
+                <div class="card" >
+                <!--  <div class="dim">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    </div>--!>
+                  <div class="card-body d-flex flex-column justify-content-between" >
+		 <!-- <div class="d-flex justify-content-between align-items-center mb-2">--!>
+                      <div id="chartContainer2" style="height: 370px; width: 100%;"></div>
+		     <!-- <canvas id="sales-chart-b" class="mt-auto" height="38"></canvas>--!>
+		     <!-- </div>--!>
+
+                  </div>
+                  </div>
+
+                </div>
+              </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+
+  <script>
+
+      function myFunction(input,inputtimp) {
+
+        filter = input.toUpperCase();
+        filtertimp = inputtimp.toUpperCase();
+
+        if (filter=="") {
+          var e = document.getElementById("materir");
+          var input = e.options[e.selectedIndex].value;
+          console.log("aici0");
+          console.log(filter);
+        }
+        if (filtertimp=="") {
+          var e = document.getElementById("timp");
+          var inputtimp = e.options[e.selectedIndex].value;
+          console.log("aici0");
+          console.log(filter);
+        }
+
+
+
+        filter = input.toUpperCase();
+        filtertimp = inputtimp.toUpperCase();
+
+      table = document.getElementById("tabel");
+
+      tr = table.getElementsByTagName("tr");
+        console.log(tr);
+      for (i = 0; i < tr.length; i++) {
+        tdtimp = tr[i].getElementsByTagName("td")[3];
+
+
+
+      td = tr[i].getElementsByTagName("td")[0];
+
+      if (td) {
+      txtValue = td.textContent || td.innerText;
+        txtValuetimp = tdtimp.textContent || tdtimp.innerText;
+      if ((txtValue.toUpperCase().indexOf(filter) > -1) && (txtValuetimp.toUpperCase().indexOf(filtertimp) > -1) ) {
+        console.log("aici1");
+        console.log(filter);
+        console.log("aici2");
+        console.log(td);
+      tr[i].style.display = "";
+    } else {
+      tr[i].style.display = "none";
+    }
+    }
+    }
+    }
+</script>
+  <script>
+    window.onload = function () {
+
+      var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        title:{
+          text: "Numarul de teste rezolvate in ultimele 10 zile"
+        },
+        axisY: {
+          title: "Teste rezolvate ",
+          valueFormatString: "",
+          suffix: "",
+          stripLines: [{
+            value: 500000,
+            label: "Average"
+          }]
+        },
+        data: [{
+          yValueFormatString: "",
+          xValueFormatString: "YYYY-MM-DD",
+          type: "line",
+          dataPoints: [
+            <?php
+      $servername = "localhost";
+      $username = "alina";
+      $password = "alyne2006";
+      $dbname = "site";
+      $conn = mysqli_connect($servername, $username, $password, $dbname);
+      if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+      }
+      $sql = "SELECT COUNT(*) as total,DATE(timp) as timp FROM inceptest GROUP BY DATE(timp) ORDER BY DATE(timp) LIMIT 10";
+      $result = mysqli_query($conn, $sql);
+      if (mysqli_num_rows($result) > 0) { $l=0;
+        while ($row = mysqli_fetch_assoc($result)) {$l=$l+1;
+       echo'   { x:'.$l.', y: '.$row['total'].', label: "'.$row['timp'].'"},';
+        }}
+
+              ?>
+          ]
+        }],
+
+      });
+      chart.render();
+      var chart2 = new CanvasJS.Chart("chartContainer2", {
+
+        title:{
+          text: "Rezultate Teste"
+        },
+        legend: {
+          maxWidth: 350,
+          itemWidth: 120
+        },
+        data: [{
+          type: "pie",
+          showInLegend: true,
+          legendText: "{indexLabel}",
+          dataPoints: [
+            <?php
+      $servername = "localhost";
+      $username = "alina";
+      $password = "alyne2006";
+      $dbname = "site";
+      $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+      if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+      }
+      $sql = "SELECT COUNT(*) AS nr,ROUND(nota/10,2) AS noti FROM inceptest WHERE nota IS NOT NULL AND elevid=".$_SESSION['elevid']." GROUP BY nota";
+      $result = mysqli_query($conn, $sql);
+      if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+          echo'   { y : '.$row['nr'].' , indexLabel: "'.$row['noti'].'"},';
+        }}
+              ?>
+    ]
+    }],
+
+    });
+      chart2.render();
+
+    }
+ </script>
+
+
+</body>
+
+</html>
+

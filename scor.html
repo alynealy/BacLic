@@ -1,0 +1,57 @@
+ <table class="table" id="tabel">
+                            <thead>
+                            <tr>
+                              <th>Loc</th>
+                              <th>Nume</th>
+                              <th>Punctaj</th>
+                            </tr>
+                            </thead><tbody>
+                            <?php 
+		      session_start();
+            $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+    }
+    $sql = "(SELECT (SELECT COUNT(*)+1 AS loc FROM clasament WHERE punctaj>(SELECT punctaj FROM clasament WHERE numeut=".$_SESSION['elevid']."))AS loc,numeut,CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS nume, punctaj  FROM clasament
+LEFT JOIN registrelevi
+ON clasament.numeut=registrelevi.id
+WHERE numeut=". $_SESSION['elevid']." )
+UNION ALL
+SELECT * FROM (SELECT COUNT(*) OVER (ORDER BY punctaj  ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS loc,numeut, CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS nume,punctaj FROM clasament
+LEFT JOIN registrelevi
+ON clasament.numeut=registrelevi.id
+ORDER BY punctaj DESC)b";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+                            while ($row = mysqli_fetch_assoc($result)) {
+                             if($row['numeut']==$_SESSION['elevid']){
+                        echo" <thead>
+                          <tr>
+                            <td style='font-weight: bold'>".$row['loc']."</td>
+                            <td style='font-weight: bold'>".$row['nume']."</td>
+                            <td style='font-weight: bold'>".$row['punctaj']."</td>
+                          </tr>
+                          </thead>";
+}
+                           else{
+                            echo" <thead>
+                          <tr>
+                            <td>".$row['loc']."</td>
+                            <td>".$row['nume']."</td>
+                            <td>".$row['punctaj']."</td>
+                          </tr>
+                          </thead>";
+                          }
+                            }}
+                            ?>
+
+                            </tbody>
+                          </table>
+

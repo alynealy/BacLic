@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <script src="canvasjs.min.js"></script>
+</head>
+<body>
+<div class="container-scroller">
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav mr-lg-2">
+                <li class="nav-item nav-profile dropdown">
+                    <i class="mdi mdi-new-box"></i>  <p class="mb-0"> <a href="chat.html">Trivia</a></p></li>
+                <li class="nav-item nav-profile dropdown">
+                    <a class="nav-link" href="#" data-toggle="dropdown" id="profileDropdown">
+                        <img src="images/useri.png" alt="profile"/>
+                        <?php
+                                          session_start();
+              if($_SESSION['elevid']==""){header("Location: index.html");die();}
+
+              $servername = "localhost";
+                        $username = "alina";
+                        $password = "alyne2006";
+                        $dbname = "site";
+                        $conn = mysqli_connect($servername, $username, $password, $dbname);
+                        // Check connection
+                        if (!$conn) {
+                        die("Connection failed: " . mysqli_connect_error());
+                        }
+
+                        $sql="SELECT CONCAT(registrelevi.nume,' ',registrelevi.prenume) AS np FROM registrelevi WHERE id=".$_SESSION['elevid'];
+                            $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                        echo '<span class="nav-use-status">'.$row['np'].'</span>';}}
+                        ?>
+                    </a>
+                </li>
+                <li class="nav-item nav-user-status dropdown">
+                    <p class="mb-0"><a href="logout.html">Delogare</a></p>
+                </li>
+
+            </ul>
+
+        </div>
+    </nav>
+    <?php
+    $servername = "localhost";
+    $username = "alina";
+    $password = "alyne2006";
+    $dbname = "site";
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+if (isset($_POST['buton'])){
+if(isset($_POST['grila'])=="" &&isset($_POST['grila1'])=="") { echo '<script>alert("Va rugam sa alegeti o optiune.")</script>';}
+    else{    
+            if(isset($_POST['grila'])){
+    	     $sql="DELETE FROM registrelevi WHERE id=".$_SESSION['elevid'];
+   	      if(!mysqli_query($conn, $sql)){ $vaqr= mysqli_errno($conn);}
+  	      session_unset();
+	      session_destroy();}}
+}
+
+    ?>
+
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                        <div class="card">
+                            <div class="card-body">
+                                <form class="forms-sample" method="post" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label for="g1" class="col-sm-3 col-form-label card-description">Vrei sa iti stergi contul?</label> </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="grila" id="g1" value="Da" >
+                                                    Da
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="grila1" id="g2" value="Nu" >
+                                                Nu
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="buton" class="col-sm-1"></label>
+                                        <div class="col-sm-1">
+                                            <input  class="file-upload-browse btn btn-primary  btn-rounded" type="submit" name="buton" id="buton" value="Trimite">
+					</div></div>
+                                </form>
+                 </div>
+               </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
